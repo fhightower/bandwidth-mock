@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 import uuid
 
 
@@ -78,30 +78,99 @@ create_success_payload = CallbackPayloadCreator(
 
 
 def _create_inbound_payload(
-    lead_number: str, agent_number: str, *_
+    lead_number: str,
+    agent_number: str,
+    message_body_updates: Optional[dict[str, Any]] = None,
 ) -> CallbackPayloadCreatorResponse:
+    if not message_body_updates:
+        message_body_updates = {}
+
+    message_body = {
+        "id": uuid.uuid4().hex,
+        "time": "",
+        "to": [agent_number],
+        "from": lead_number,
+        "text": "Hi!",
+        "media": [],
+        "applicationId": "",
+        "owner": lead_number,
+        "direction": "in",
+        "segmentCount": 1,
+    }
+
+    message_body.update(message_body_updates)
+
     return [
         {
             "type": "message-received",
             "time": "",
             "description": "Incoming message received",
             "to": agent_number,
-            "message": {
-                "id": uuid.uuid4().hex,
-                "time": "",
-                "to": [agent_number],
-                "from": lead_number,
-                "text": "Hi!",
-                "applicationId": "",
-                "owner": lead_number,
-                "direction": "in",
-                "segmentCount": 1,
-            },
+            "message": message_body,
         }
     ]
 
 
+def _create_inbound_text_only_payload(
+    lead_number: str, agent_number: str, *_
+) -> CallbackPayloadCreatorResponse:
+    return _create_inbound_payload(lead_number, agent_number)
+
+
 create_inbound_payload = CallbackPayloadCreator(
-    create=_create_inbound_payload,
+    create=_create_inbound_text_only_payload,
+    endpoint=INBOUND_CALLBACK_ENDPOINT,
+)
+
+
+def _create_media_only_payload(
+    lead_number: str, agent_number: str, *_
+) -> CallbackPayloadCreatorResponse:
+    message_body = {
+        "media": [
+            "https://dev.bandwidth.com/img/dev-docs-logo.svg",
+        ],
+        "text": "",
+    }
+
+    return _create_inbound_payload(lead_number, agent_number, message_body)
+
+
+create_media_only_payload = CallbackPayloadCreator(
+    create=_create_media_only_payload,
+    endpoint=INBOUND_CALLBACK_ENDPOINT,
+)
+
+
+def _create_media_and_text_payload(
+    lead_number: str, agent_number: str, *_
+) -> CallbackPayloadCreatorResponse:
+    message_body = {
+        "media": [
+            "https://dev.bandwidth.com/img/dev-docs-logo.svg",
+        ],
+        "text": "Message w/ media",
+    }
+    return _create_inbound_payload(lead_number, agent_number, message_body)
+
+
+create_media_and_text_payload = CallbackPayloadCreator(
+    create=_create_media_and_text_payload,
+    endpoint=INBOUND_CALLBACK_ENDPOINT,
+)
+
+
+def _create_multiple_recipients_payload(
+    lead_number: str, agent_number: str, *_
+) -> CallbackPayloadCreatorResponse:
+    message_body = {
+        "text": "Message sent to multiple recipients",
+        "to": [agent_number, "1234567890"],
+    }
+    return _create_inbound_payload(lead_number, agent_number, message_body)
+
+
+create_multiple_recipients_payload = CallbackPayloadCreator(
+    create=_create_multiple_recipients_payload,
     endpoint=INBOUND_CALLBACK_ENDPOINT,
 )

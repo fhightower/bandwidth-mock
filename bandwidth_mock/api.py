@@ -12,10 +12,11 @@ from bandwidth_mock.commands import get_message_payload_creators
 app = FastAPI()
 
 BASE_URL = "http://localhost:5555/api"
+DELAY_SECONDS = 2
 
 
 async def send_callback(url: str, callback_payload: list[dict[str, Any]]):
-    await asyncio.sleep(5)
+    await asyncio.sleep(DELAY_SECONDS)
     requests.post(url, json=callback_payload)
 
 
