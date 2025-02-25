@@ -4,6 +4,7 @@ from typing import Any
 import uuid
 
 from fastapi import BackgroundTasks, FastAPI
+from fastapi import Response
 import requests
 
 from bandwidth_mock.commands import get_message_payload_creators
@@ -12,7 +13,7 @@ from bandwidth_mock.commands import get_message_payload_creators
 app = FastAPI()
 
 BASE_URL = "http://localhost:5555/api"
-DELAY_SECONDS = 2
+DELAY_SECONDS = 1
 
 
 async def send_callback(url: str, callback_payload: list[dict[str, Any]]):
@@ -20,8 +21,8 @@ async def send_callback(url: str, callback_payload: list[dict[str, Any]]):
     requests.post(url, json=callback_payload)
 
 
-@app.post("/new")
-def mock_outbound_reponse(request: dict, background_tasks: BackgroundTasks):
+@app.post("/messages")
+def mock_messages_response(request: dict, background_tasks: BackgroundTasks):
     lead_number = request["to"][0]
     agent_number = request["from"]
     message = request["text"]
@@ -36,3 +37,14 @@ def mock_outbound_reponse(request: dict, background_tasks: BackgroundTasks):
         )
 
     return {"id": message_id}
+
+
+@app.get("/tndetails", response_class=Response)
+def mock_tndetails():
+    xml_content = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TelephoneNumberResponse>
+  <TelephoneNumberDetails>
+    <CampaignFullyProvisioned>true</CampaignFullyProvisioned>
+  </TelephoneNumberDetails>
+</TelephoneNumberResponse>"""
+    return Response(content=xml_content, media_type="application/xml")

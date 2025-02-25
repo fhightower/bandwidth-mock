@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.2.0
+
+### Added
+
+- `/tndetails` endpoint to return details about a TN
+  - Currently only returns `CampaignFullyProvisioned` = `true`
+
+### Changed
+
+- `/new` endpoint renamed to `messages` to line up with the Bandwidth API
+
 ## 0.1.0
 
 ### Added
