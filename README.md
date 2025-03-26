@@ -2,8 +2,9 @@
 
 ## Quickstart
 
+todo: update these instructions... can I just ignore everything everything except BW?
+
 ```
-pip install -r requirements.txt
-fastapi dev bandwidth_mock/api.py --port 1234
+mitmproxy -s mock_bw.py --set console_mouse=false -p 1234 --ignore-hosts ?????????
 ```
 

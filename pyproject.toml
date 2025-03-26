@@ -1,4 +1,5 @@
 [project]
 name = "bandwidth-mock"
-version = "0.2.0"
+version = "1.0.0"
+python_requires = ">=3.12"
 
