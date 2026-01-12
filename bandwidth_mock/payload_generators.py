@@ -11,12 +11,12 @@ CallbackPayloadCreatorResponse = list[dict[str, Any]]
 
 @dataclass
 class CallbackPayloadCreator:
-    create: Callable[[str, str, str], CallbackPayloadCreatorResponse]
+    create: Callable[[str, str, str, str], CallbackPayloadCreatorResponse]
     endpoint: str
 
 
 def _create_error_payload(
-    lead_number: str, agent_number: str, message_id: str
+    lead_number: str, agent_number: str, message_id: str, *_
 ) -> CallbackPayloadCreatorResponse:
     return [
         {
@@ -47,7 +47,7 @@ create_error_payload = CallbackPayloadCreator(
 
 
 def _create_success_payload(
-    lead_number: str, agent_number: str, message_id: str
+    lead_number: str, agent_number: str, message_id: str, *_
 ) -> CallbackPayloadCreatorResponse:
     return [
         {
@@ -119,6 +119,36 @@ def _create_inbound_text_only_payload(
 
 create_inbound_payload = CallbackPayloadCreator(
     create=_create_inbound_text_only_payload,
+    endpoint=INBOUND_CALLBACK_ENDPOINT,
+)
+
+
+def _create_inbound_echo_payload(
+    lead_number: str, agent_number: str, _: str, message: str
+) -> CallbackPayloadCreatorResponse:
+    message_to_echo = message[len("echo:") :].strip()
+    return _create_inbound_payload(lead_number, agent_number, {"text": message_to_echo})
+
+
+create_echo_payload = CallbackPayloadCreator(
+    create=_create_inbound_echo_payload,
+    endpoint=INBOUND_CALLBACK_ENDPOINT,
+)
+
+
+def _create_help_payload(
+    lead_number: str, agent_number: str, *_
+) -> CallbackPayloadCreatorResponse:
+    from bandwidth_mock.commands import COMMAND_PROCESSOR_MAP
+
+    message = "Available commands: " + ", ".join(
+        k for k in COMMAND_PROCESSOR_MAP.keys() if k != "_default"
+    )
+    return _create_inbound_payload(lead_number, agent_number, {"text": message})
+
+
+create_help_payload = CallbackPayloadCreator(
+    create=_create_help_payload,
     endpoint=INBOUND_CALLBACK_ENDPOINT,
 )
 

@@ -33,7 +33,7 @@ def mock_messages_response(request: dict, background_tasks: BackgroundTasks):
         background_tasks.add_task(
             send_callback,
             os.path.join(BASE_URL, creator.endpoint),
-            creator.create(lead_number, agent_number, message_id),
+            creator.create(lead_number, agent_number, message_id, message),
         )
 
     return {"id": message_id}

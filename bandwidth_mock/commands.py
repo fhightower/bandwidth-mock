@@ -5,6 +5,8 @@ from bandwidth_mock.payload_generators import (
     create_media_only_payload,
     create_media_and_text_payload,
     create_multiple_recipients_payload,
+    create_echo_payload,
+    create_help_payload,
     CallbackPayloadCreator,
 )
 
@@ -14,6 +16,7 @@ CallbackPayloadCreators = list[CallbackPayloadCreator]
 DEFAULT_KEY = "_default"
 
 COMMAND_PROCESSOR_MAP: dict[str, CallbackPayloadCreators] = {
+    "echo:": [create_success_payload, create_echo_payload],
     "fail": [create_error_payload],
     "in:med-txt": [
         create_success_payload,
@@ -25,6 +28,7 @@ COMMAND_PROCESSOR_MAP: dict[str, CallbackPayloadCreators] = {
         create_multiple_recipients_payload,
     ],  # Multiple recipients
     "in": [create_success_payload, create_inbound_payload],
+    "help": [create_success_payload, create_help_payload],
     DEFAULT_KEY: [create_success_payload],
 }
 
